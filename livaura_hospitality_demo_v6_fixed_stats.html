@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Livaura Demo v4 — Refined Ops Dashboard</title>
+<style>
+  :root{
+    --bg:#f7f4ee;
+    --panel:#ffffff;
+    --panel-2:#fcfaf6;
+    --ink:#1f2937;
+    --muted:#6b7280;
+    --line:#e6dfd3;
+    --brand:#9a7b4f;
+    --brand-2:#c8ae86;
+    --soft:#efe6d8;
+    --nav:#faf7f2;
+    --green:#2f7d52;
+    --green-bg:#eaf5ef;
+    --blue:#2e5f7d;
+    --blue-bg:#edf4f8;
+    --orange:#b56a2e;
+    --orange-bg:#f8ece2;
+    --red:#a84c4c;
+    --red-bg:#f9ebeb;
+    --amber:#9a7500;
+    --amber-bg:#fcf5d6;
+    --shadow:0 10px 28px rgba(31,41,55,.07);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background:linear-gradient(180deg,#fbf9f5 0%, var(--bg) 100%);
+    color:var(--ink);
+  }
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background:rgba(251,249,245,.92);
+    border-bottom:1px solid var(--line);
+    backdrop-filter: blur(12px);
+  }
+  .topbar-inner{
+    max-width:1600px; margin:0 auto; padding:16px 22px;
+    display:flex; align-items:center; gap:18px;
+  }
+  .logo h1{margin:0; font-size:23px; letter-spacing:.04em}
+  .logo p{margin:4px 0 0; font-size:12px; color:var(--muted)}
+  .stake-tabs{display:flex; gap:8px; margin-left:auto; flex-wrap:wrap}
+  .stake-tab{
+    border:1px solid var(--line); background:#fff; padding:10px 14px; border-radius:999px;
+    cursor:pointer; font-size:13px; transition:.2s ease;
+  }
+  .stake-tab.active,.stake-tab:hover{background:var(--brand); color:#fff; border-color:var(--brand)}
+  .wrap{max-width:1600px; margin:0 auto; padding:18px 22px 28px}
+  .layout{display:grid; grid-template-columns:240px 1fr 350px; gap:16px}
+  .card{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow);
+  }
+  .sidebar{padding:16px; background:var(--nav); position:sticky; top:84px; align-self:start}
+  .property-select{
+    width:100%; padding:11px 12px; border-radius:12px; border:1px solid var(--line); background:#fff; font-size:14px; margin-bottom:16px;
+  }
+  .nav-group{margin-bottom:18px}
+  .nav-label{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.09em; margin-bottom:8px; padding:0 6px}
+  .nav-item{
+    padding:12px 12px; border-radius:14px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;
+    font-size:14px; margin-bottom:8px; transition:.2s ease; border:1px solid transparent;
+  }
+  .nav-item:hover{background:#fff; border-color:var(--line)}
+  .nav-item.active{background:#fff; border-color:var(--brand-2)}
+  .count{font-size:12px; padding:2px 8px; border-radius:999px; background:var(--soft); color:var(--brand)}
+  .main{min-width:0}
+  .hero{
+    display:grid; grid-template-columns:1.1fr .9fr; gap:14px; margin-bottom:14px;
+  }
+  .hero-main{padding:18px}
+  .hero-main h2{margin:0 0 8px; font-size:22px; line-height:1.2}
+  .hero-main{min-width:0}
+  .hero-main .stats{align-items:stretch}
+  .hero-main p{margin:0; color:var(--muted); line-height:1.45; font-size:13px}
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(6,minmax(0,1fr));
+    gap:10px;
+    margin-top:16px;
+  }
+  .stat{
+    padding:12px 10px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:#fff;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    min-height:106px;
+  }
+  .stat .k{
+    font-size:10px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.07em;
+    line-height:1.15;
+    word-break:break-word;
+    overflow-wrap:anywhere;
+  }
+  .stat .v{
+    font-size:18px;
+    font-weight:700;
+    margin-top:8px;
+    line-height:1;
+  }
+  .hero-side{padding:16px}
+  .hero-side h3{margin:0 0 10px; font-size:16px}
+  .mini-list{display:flex; flex-direction:column; gap:10px}
+  .mini-item{
+    padding:12px; border:1px solid var(--line); border-radius:14px; background:#fff;
+  }
+  .mini-item b{display:block; font-size:14px; margin-bottom:3px}
+  .mini-item span{font-size:12px; color:var(--muted)}
+  .toolbar{
+    display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:12px
+  }
+  .toolbar-left{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+  .pill{
+    border:1px solid var(--line); background:#fff; padding:10px 12px; border-radius:999px; font-size:13px; cursor:pointer;
+  }
+  .pill.active,.pill:hover{background:var(--soft); border-color:var(--brand-2)}
+  .toolbar-right{display:flex; gap:8px; align-items:center}
+  .btn{
+    border:1px solid var(--line); background:#fff; padding:10px 12px; border-radius:12px; font-size:13px; cursor:pointer;
+  }
+  .btn.brand{background:var(--brand); color:#fff; border-color:var(--brand)}
+  .search{padding:10px 12px; border-radius:12px; border:1px solid var(--line); min-width:220px; background:#fff}
+  .panel-head{
+    padding:14px 16px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center
+  }
+  .panel-head h3{margin:0; font-size:17px}
+  .panel-head p{margin:4px 0 0; color:var(--muted); font-size:12px}
+  .grid-wrap{padding:14px}
+  .unit-grid{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(86px,1fr)); gap:8px;
+    max-height:560px; overflow:auto; padding-right:4px;
+  }
+  .unit{
+    border:1px solid var(--line); border-radius:14px; padding:8px 8px 10px; background:#fff; cursor:pointer; min-height:92px;
+    transition:.18s ease; position:relative;
+  }
+  .unit:hover{transform:translateY(-1px); border-color:var(--brand-2); box-shadow:0 6px 16px rgba(0,0,0,.05)}
+  .unit .num{font-weight:800; font-size:14px}
+  .mode{
+    margin-top:4px; display:inline-block; font-size:9px; letter-spacing:.07em; text-transform:uppercase; font-weight:700; padding:3px 6px; border-radius:999px;
+  }
+  .mode.owner{background:var(--soft); color:var(--brand)}
+  .mode.tenant{background:var(--blue-bg); color:var(--blue)}
+  .mode.short{background:#eaf2f8; color:#356b8b}
+  .occ{margin-top:6px; font-size:10px; color:#374151; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .sub{margin-top:2px; font-size:9px; color:var(--muted)}
+  .st{
+    margin-top:6px; font-size:10px; font-weight:700;
+  }
+  .flag{position:absolute; right:6px; top:6px; width:8px; height:8px; border-radius:999px}
+  .occupied{background:var(--blue-bg); border-color:#d8e6ef}
+  .checkout{background:var(--orange-bg); border-color:#efd7c5}
+  .cleaning{background:var(--amber-bg); border-color:#efe1a2}
+  .maintenance{background:var(--red-bg); border-color:#ecc9c9}
+  .ready{background:var(--green-bg); border-color:#cfe3d6}
+  .vacant{background:#f7f7f7}
+  .status-blue{color:var(--blue)} .status-orange{color:var(--orange)} .status-red{color:var(--red)} .status-green{color:var(--green)} .status-amber{color:var(--amber)} .status-gray{color:var(--muted)}
+  .overview{
+    display:grid; grid-template-columns:1.25fr .9fr; gap:14px; margin-top:14px;
+  }
+  .list-panel{padding:0}
+  .list{
+    padding:8px 16px 14px;
+  }
+  .row{
+    padding:12px 0; border-bottom:1px solid var(--line); display:flex; gap:10px; align-items:flex-start
+  }
+  .row:last-child{border-bottom:none}
+  .row .badge{
+    font-size:11px; border-radius:999px; padding:4px 8px; background:var(--soft); color:var(--brand); font-weight:700
+  }
+  .row .title{font-size:13px; font-weight:700}
+  .row .meta{font-size:12px; color:var(--muted); margin-top:3px}
+  .chat{padding:0; position:sticky; top:84px; align-self:start; height:calc(100vh - 110px); display:flex; flex-direction:column}
+  .chat-head{padding:14px 16px; border-bottom:1px solid var(--line)}
+  .chat-head h3{margin:0; font-size:17px}
+  .chat-tabs{display:flex; gap:8px; margin-top:10px}
+  .chat-tab{padding:8px 10px; border:1px solid var(--line); border-radius:999px; font-size:12px; cursor:pointer}
+  .chat-tab.active{background:var(--soft); border-color:var(--brand-2)}
+  .chat-list{overflow:auto; padding:10px 12px; flex:1}
+  .chat-item{
+    display:flex; gap:10px; padding:10px; border-radius:14px; border:1px solid transparent; cursor:pointer; margin-bottom:8px
+  }
+  .chat-item:hover,.chat-item.active{background:var(--panel-2); border-color:var(--line)}
+  .ava{
+    width:38px; height:38px; border-radius:999px; background:var(--brand); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0
+  }
+  .chat-text{min-width:0}
+  .chat-text b{display:block; font-size:13px}
+  .chat-text span{display:block; font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:230px}
+  .chat-view{border-top:1px solid var(--line); padding:12px; background:#faf8f4}
+  .bubble{padding:10px 12px; border-radius:14px; font-size:12px; margin-bottom:8px; max-width:90%}
+  .in{background:#fff; border:1px solid var(--line)}
+  .out{background:var(--soft); margin-left:auto}
+  .reply{display:flex; gap:8px; margin-top:8px}
+  .reply input{flex:1; padding:10px 12px; border:1px solid var(--line); border-radius:12px}
+  .section-view{display:none}
+  .section-view.active{display:block}
+  .drawer{
+    position:fixed; right:20px; top:84px; width:480px; max-width:calc(100vw - 40px); height:calc(100vh - 110px);
+    background:#fff; border:1px solid var(--line); border-radius:24px; box-shadow:0 20px 50px rgba(0,0,0,.16);
+    transform:translateX(110%); transition:.26s ease; z-index:60; overflow:auto;
+  }
+  .drawer.open{transform:translateX(0)}
+  .drawer-head{
+    position:sticky; top:0; background:#fff; border-bottom:1px solid var(--line); padding:16px 18px; z-index:2
+  }
+  .drawer-top{display:flex; justify-content:space-between; gap:14px; align-items:flex-start}
+  .drawer-title h3{margin:0; font-size:24px}
+  .drawer-title p{margin:5px 0 0; color:var(--muted); font-size:12px}
+  .close{background:#fff; border:1px solid var(--line); border-radius:12px; padding:8px 11px; cursor:pointer}
+  .drawer-tabs{display:flex; gap:8px; margin-top:14px; flex-wrap:wrap}
+  .dtab{
+    border:1px solid var(--line); background:#fff; border-radius:999px; padding:8px 10px; font-size:12px; cursor:pointer
+  }
+  .dtab.active{background:var(--soft); border-color:var(--brand-2)}
+  .drawer-body{padding:16px 18px 22px}
+  .head-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px
+  }
+  .head-card{padding:12px; border:1px solid var(--line); border-radius:14px; background:#fff}
+  .head-card .k{font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted)}
+  .head-card .v{font-size:14px; font-weight:700; margin-top:6px}
+  .detail-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  }
+  .detail-card{
+    border:1px solid var(--line); border-radius:16px; padding:14px; background:var(--panel-2)
+  }
+  .detail-card h4{margin:0 0 10px; font-size:14px}
+  .kv{display:flex; justify-content:space-between; gap:10px; padding:6px 0; font-size:12px; border-bottom:1px dashed #e9e2d8}
+  .kv:last-child{border-bottom:none}
+  .kv .k{color:var(--muted)}
+  .timeline{margin-top:12px}
+  .event{
+    padding:12px; border:1px solid var(--line); border-radius:14px; background:#fff; margin-bottom:10px
+  }
+  .event b{display:block; font-size:13px}
+  .event span{display:block; font-size:12px; color:var(--muted); margin-top:4px}
+  .pay-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  }
+  .small-tag{
+    display:inline-block; font-size:10px; padding:4px 8px; border-radius:999px; background:#fff; border:1px solid var(--line); margin-top:8px
+  }
+  .stake-view{display:none}
+  .stake-view.active{display:block}
+  .owner-grid,.resident-grid,.agency-grid{
+    display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px;
+  }
+  .stake-card{padding:16px}
+  .stake-card h3{margin:0 0 10px; font-size:16px}
+  .stack{display:flex; flex-direction:column; gap:10px}
+  .cta{
+    padding:12px; border:1px solid var(--line); border-radius:14px; background:#fff; cursor:pointer; transition:.18s ease;
+  }
+  .cta:hover{border-color:var(--brand-2); background:var(--panel-2)}
+  .cta b{display:block; font-size:13px}
+  .cta span{display:block; font-size:12px; color:var(--muted); margin-top:4px}
+  .toast{
+    position:fixed; bottom:24px; right:24px; background:var(--ink); color:#fff; padding:12px 16px;
+    border-radius:14px; box-shadow:0 18px 40px rgba(0,0,0,.18); z-index:120; opacity:0; transform:translateY(20px);
+    transition:.22s ease; pointer-events:none; max-width:320px; font-size:13px;
+  }
+  .toast.show{opacity:1; transform:translateY(0)}
+  .toast.brand{background:var(--brand)}
+  .toolbar-note{font-size:12px; color:var(--muted)}
+  .action-bar{
+    display:flex; gap:8px; flex-wrap:wrap; margin-top:14px;
+  }
+  .mini-btn{
+    border:1px solid var(--line); background:#fff; border-radius:10px; padding:9px 10px; font-size:12px; cursor:pointer;
+  }
+  .mini-btn:hover{background:var(--soft); border-color:var(--brand-2)}
+  .calendar{
+    display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; margin-top:10px
+  }
+  .day{
+    padding:10px; border:1px solid var(--line); border-radius:12px; background:#fff; min-height:70px; font-size:12px
+  }
+  .cal-badge{margin-top:6px; display:inline-block; font-size:10px; padding:3px 6px; border-radius:999px; background:var(--soft); color:var(--brand)}
+  @media (max-width: 1350px){
+    .layout{grid-template-columns:220px 1fr}
+    .chat{display:none}
+  }
+  @media (max-width: 1100px){
+    .layout{grid-template-columns:1fr}
+    .sidebar{position:static}
+    .hero,.overview,.owner-grid,.resident-grid,.agency-grid,.detail-grid,.head-grid,.pay-grid{grid-template-columns:1fr}
+    .stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .drawer{width:auto; left:14px; right:14px}
+  }
+  @media (max-width: 760px){
+    .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .stat{min-height:96px}
+    .stat .k{font-size:9px}
+    .stat .v{font-size:16px}
+    .hero-main h2{font-size:20px}
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="logo">
+        <h1>LIVAURA DEMO</h1>
+        <p>Refined multi-property hospitality operating system</p>
+      </div>
+      <div class="stake-tabs">
+        <button class="stake-tab active" data-stake="ops">Ops dashboard</button>
+        <button class="stake-tab" data-stake="owner">Owner</button>
+        <button class="stake-tab" data-stake="resident">Tenant</button>
+        <button class="stake-tab" data-stake="guest">Short term</button>
+        <button class="stake-tab" data-stake="agency">Agency</button>
+        <button class="stake-tab" data-stake="security">Security</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="stake-view active" id="stake-ops">
+      <div class="layout">
+        <aside class="card sidebar">
+          <select class="property-select">
+            <option>Marina Gate Residences</option>
+            <option>Downtown Suites</option>
+            <option>Palm Tower Apartments</option>
+          </select>
+
+          <div class="nav-group">
+            <div class="nav-label">Operations</div>
+            <div class="nav-item active" data-section="grid"><span>Grid</span><span class="count">168</span></div>
+            <div class="nav-item" data-section="requests"><span>Requests & complaints</span><span class="count">19</span></div>
+            <div class="nav-item" data-section="bookings"><span>Short-term bookings</span><span class="count">24</span></div>
+            <div class="nav-item" data-section="expiry"><span>Expiry contracts & docs</span><span class="count">8</span></div>
+            <div class="nav-item" data-section="cleaning"><span>Cleaning & maintenance</span><span class="count">14</span></div>
+            <div class="nav-item" data-section="communication"><span>Communication</span><span class="count">27</span></div>
+            <div class="nav-item" data-section="visitors"><span>Visitors</span><span class="count">11</span></div>
+            <div class="nav-item" data-section="reports"><span>Reports</span><span class="count">6</span></div>
+          </div>
+          <div class="note" style="border-left:4px solid var(--brand); background:#fbf7f0; padding:14px; border-radius:14px; font-size:12px; color:#4b5563">
+            Best demo path:<br><strong>Grid → unit card → checkout → cleaning → ready</strong>
+          </div>
+        </aside>
+
+        <main class="main">
+          <div class="hero">
+            <div class="card hero-main">
+              <h2>Operations control center</h2>
+              <p>Unit-led CRM with live occupancy, active chats, requests, visitors, payments, check-ins, check-outs, cleaning, maintenance, and history.</p>
+              <div class="stats">
+                <div class="stat"><div class="k">Total units</div><div class="v">168</div></div>
+                <div class="stat"><div class="k">Occupied</div><div class="v" style="color:var(--blue)">124</div></div>
+                <div class="stat"><div class="k">Check-outs today</div><div class="v" style="color:var(--orange)">11</div></div>
+                <div class="stat"><div class="k">Back-to-back</div><div class="v" style="color:var(--amber)">4</div></div>
+                <div class="stat"><div class="k">Open requests</div><div class="v" style="color:var(--red)">19</div></div>
+                <div class="stat"><div class="k">Ready units</div><div class="v" style="color:var(--green)">21</div></div>
+              </div>
+            </div>
+            <div class="card hero-side">
+              <h3>Today’s priority items</h3>
+              <div class="mini-list">
+                <div class="mini-item"><b>Unit 1205 checkout at 11:00</b><span>Back-to-back with new arrival at 15:00</span></div>
+                <div class="mini-item"><b>Noise complaint — Unit 904</b><span>Security follow-up pending</span></div>
+                <div class="mini-item"><b>Contract expiry — Unit 1502</b><span>Tenant lease ends in 7 days</span></div>
+                <div class="mini-item"><b>Guest upsell campaign sent</b><span>Late checkout + airport transfer for 9 stays</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-view active" id="section-grid">
+            <div class="toolbar">
+              <div class="toolbar-left">
+                <button class="pill active" data-filter="all">All units</button>
+                <button class="pill" data-filter="owners">Owners</button>
+                <button class="pill" data-filter="tenants">Tenants</button>
+                <button class="pill" data-filter="short">Short term</button>
+                <button class="pill" data-status="occupied">Occupied</button>
+                <button class="pill" data-status="checkout">Checkout</button>
+                <button class="pill" data-status="cleaning">Cleaning</button>
+                <button class="pill" data-status="ready">Ready</button>
+              </div>
+              <div class="toolbar-right">
+                <input class="search" placeholder="Search unit, name, phone, document expiry" />
+                <button class="btn">Export</button>
+                <button class="btn brand">+ New booking</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="panel-head">
+                <div>
+                  <h3>Apartment grid</h3>
+                  <p>Click any apartment to open the full CRM profile</p>
+                </div>
+                <div style="font-size:12px;color:var(--muted)">Smaller cards. Larger grid. Faster scanning.</div>
+              </div>
+              <div class="grid-wrap">
+                <div class="unit-grid" id="unitGrid"></div>
+              </div>
+            </div>
+
+            <div class="overview">
+              <div class="card list-panel">
+                <div class="panel-head">
+                  <div><h3>Most important active entries</h3><p>Live feed from requests, complaints, bookings, visitors, and payments</p></div>
+                </div>
+                <div class="list">
+                  <div class="row"><span class="badge">Complaint</span><div><div class="title">Unit 904 · Noise complaint after 22:00</div><div class="meta">Security assigned · Guest notified in chat · 11 min ago</div></div></div>
+                  <div class="row"><span class="badge">Checkout</span><div><div class="title">Unit 1205 · Guest leaving today</div><div class="meta">Cleaning auto-trigger scheduled at 11:10 · Back-to-back highlighted</div></div></div>
+                  <div class="row"><span class="badge">Request</span><div><div class="title">Unit 1502 · Tenant booked deep cleaning</div><div class="meta">Calendar confirmed · Payment link sent · 45 min ago</div></div></div>
+                  <div class="row"><span class="badge">Visitor</span><div><div class="title">Unit 802 · Unannounced visitor waiting approval</div><div class="meta">Security log complete · Resident approval pending</div></div></div>
+                  <div class="row"><span class="badge">Upsell</span><div><div class="title">7 guests received late checkout offer</div><div class="meta">2 accepted · AED 400 additional revenue</div></div></div>
+                </div>
+              </div>
+
+              <div class="card list-panel">
+                <div class="panel-head">
+                  <div><h3>Ops alerts</h3><p>What needs attention now</p></div>
+                </div>
+                <div class="list">
+                  <div class="row"><span class="badge">Docs</span><div><div class="title">3 passports expiring within 30 days</div><div class="meta">Long-term tenant documents section</div></div></div>
+                  <div class="row"><span class="badge">Ready</span><div><div class="title">2 units blocked by maintenance</div><div class="meta">Cannot move to ready until work closed</div></div></div>
+                  <div class="row"><span class="badge">Agency</span><div><div class="title">Agency booking sync delay</div><div class="meta">FOH can still create manual booking</div></div></div>
+                  <div class="row"><span class="badge">Chat</span><div><div class="title">5 active guest chats waiting reply</div><div class="meta">AI drafted responses available</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-view" id="section-requests">
+            <div class="card">
+              <div class="panel-head"><div><h3>Requests & complaints</h3><p>All entries. Filterable by type, status, unit, and stakeholder.</p></div></div>
+              <div class="list">
+                <div class="row"><span class="badge">Maintenance</span><div><div class="title">Unit 1502 · AC cooling issue</div><div class="meta">Tenant · Open · Routed to maintenance automatically</div></div></div>
+                <div class="row"><span class="badge">Cleaning</span><div><div class="title">Unit 1804 · During-stay cleaning booked</div><div class="meta">Guest · Confirmed in calendar · Payment link sent</div></div></div>
+                <div class="row"><span class="badge">Security</span><div><div class="title">Unit 904 · Visitor dispute</div><div class="meta">Complaint routed to security, concierge monitoring</div></div></div>
+                <div class="row"><span class="badge">Owner</span><div><div class="title">Unit 705 · Owner requests maintenance before next tenant move-in</div><div class="meta">Pending scheduling</div></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-view" id="section-bookings">
+            <div class="card">
+              <div class="panel-head"><div><h3>Short-term bookings</h3><p>Daily check-ins, check-outs, upcoming arrivals, and booking creation.</p></div></div>
+              <div class="list">
+                <div class="row"><span class="badge">Today</span><div><div class="title">11 check-outs · 9 check-ins</div><div class="meta">4 back-to-back, 9 pre-check-ins already completed</div></div></div>
+                <div class="row"><span class="badge">Upcoming</span><div><div class="title">Tomorrow · 14 arrivals</div><div class="meta">2 bookings still missing guest documents</div></div></div>
+                <div class="row"><span class="badge">Agency</span><div><div class="title">Arabian Estates created booking for Unit 1307</div><div class="meta">FOH sees it instantly and planning updated</div></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-view" id="section-expiry">
+            <div class="card">
+              <div class="panel-head"><div><h3>Expiry contracts & documents</h3><p>Lease expiries, tenant passports, IDs, vehicle cards, guest documents.</p></div></div>
+              <div class="list">
+                <div class="row"><span class="badge">7 days</span><div><div class="title">Unit 1502 · Tenancy contract expires soon</div><div class="meta">Owner and tenant reminders prepared</div></div></div>
+                <div class="row"><span class="badge">14 days</span><div><div class="title">Unit 1208 · Maid ID nearing expiry</div><div class="meta">Resident profile flagged</div></div></div>
+                <div class="row"><span class="badge">30 days</span><div><div class="title">3 guest documents require archive review</div><div class="meta">History maintained, active view cleared after stay</div></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-view" id="section-cleaning">
+            <div class="card">
+              <div class="panel-head"><div><h3>Cleaning & maintenance calendar</h3><p>Checkout cleaning, during-stay cleaning, maintenance visits, readiness.</p></div></div>
+              <div class="list">
+                <div class="row"><span class="badge">Priority</span><div><div class="title">Unit 1205 · Checkout cleaning today</div><div class="meta">Back-to-back. Cleaner assigned. Inventory deduction after completion.</div></div></div>
+                <div class="row"><span class="badge">During stay</span><div><div class="title">Unit 1804 · Guest cleaning at 14:00</div><div class="meta">Calendar booking confirmed. Towels + amenities replenishment configured.</div></div></div>
+                <div class="row"><span class="badge">Blocked</span><div><div class="title">Unit 605 · Maintenance before ready</div><div class="meta">Before/after photos required. Concierge informed.</div></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-view" id="section-communication">
+            <div class="card">
+              <div class="panel-head"><div><h3>Communication</h3><p>Chat, automated messages, announcements, promotions, payment links.</p></div></div>
+              <div class="list">
+                <div class="row"><span class="badge">Broadcast</span><div><div class="title">Announcement sent to all residents</div><div class="meta">Pool maintenance tomorrow from 10:00 to 12:00</div></div></div>
+                <div class="row"><span class="badge">Guest chat</span><div><div class="title">Unit 1205 · Late checkout upsell sent</div><div class="meta">Offer delivered in app chat and email</div></div></div>
+                <div class="row"><span class="badge">Payment</span><div><div class="title">Unit 1502 · Deep cleaning link sent</div><div class="meta">Payment pending</div></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-view" id="section-visitors">
+            <div class="card">
+              <div class="panel-head"><div><h3>Visitors</h3><p>Pre-logged, unannounced, security approval, and resident instructions.</p></div></div>
+              <div class="list">
+                <div class="row"><span class="badge">Waiting</span><div><div class="title">Unit 802 · Unannounced visitor</div><div class="meta">Security logged documents and requested approval from resident</div></div></div>
+                <div class="row"><span class="badge">Pre-approved</span><div><div class="title">Unit 1502 · Cleaner entry by tenant instruction</div><div class="meta">No stop requested. Documents logged. Entry allowed.</div></div></div>
+                <div class="row"><span class="badge">Direct</span><div><div class="title">Unit 904 · Resident already pre-registered guest visitor</div><div class="meta">Security only verifies ID and admits</div></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-view" id="section-reports">
+            <div class="card">
+              <div class="panel-head"><div><h3>Reports</h3><p>Occupancy, payments, request volume, cleaning, maintenance, upsells.</p></div></div>
+              <div class="list">
+                <div class="row"><span class="badge">Occupancy</span><div><div class="title">74% current occupancy across property</div><div class="meta">Short-term 62 units · Long-term 62 units</div></div></div>
+                <div class="row"><span class="badge">Revenue</span><div><div class="title">AED 7,850 additional services this month</div><div class="meta">Cleaning, maintenance, valet, late checkout</div></div></div>
+                <div class="row"><span class="badge">Performance</span><div><div class="title">96% room readiness on time</div><div class="meta">Average checkout-to-ready 2h 05m</div></div></div>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        <aside class="card chat">
+          <div class="chat-head">
+            <h3>Active chats</h3>
+            <div class="chat-tabs">
+              <span class="chat-tab active">All</span>
+              <span class="chat-tab">Guests</span>
+              <span class="chat-tab">Residents</span>
+              <span class="chat-tab">Owners</span>
+            </div>
+          </div>
+          <div class="chat-list">
+            <div class="chat-item active">
+              <div class="ava">EC</div>
+              <div class="chat-text"><b>Emily Carter · Unit 1205</b><span>Can I get late checkout until 14:00?</span></div>
+            </div>
+            <div class="chat-item">
+              <div class="ava" style="background:var(--blue)">SJ</div>
+              <div class="chat-text"><b>Sarah Johnson · Unit 1502</b><span>Can you confirm tomorrow’s deep cleaning slot?</span></div>
+            </div>
+            <div class="chat-item">
+              <div class="ava" style="background:var(--green)">AM</div>
+              <div class="chat-text"><b>Ahmad Al Mansouri · Owner</b><span>Please send the maintenance photos for Unit 705.</span></div>
+            </div>
+            <div class="chat-item">
+              <div class="ava" style="background:var(--orange)">AE</div>
+              <div class="chat-text"><b>Arabian Estates · Agency</b><span>Booking pushed for Unit 1307. Please confirm allocation.</span></div>
+            </div>
+          </div>
+          <div class="chat-view">
+            <div class="bubble in">Late checkout is available until 14:00 for AED 200.</div>
+            <div class="bubble out">Please send me the payment link.</div>
+            <div class="bubble in">Done. Link has been sent in the chat and by email.</div>
+            <div class="reply"><input id="replyBox" placeholder="Reply as concierge..." /><button class="btn brand" onclick="sendReply()">Send</button></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <div class="stake-view" id="stake-owner">
+      <div class="card stake-card" style="margin-bottom:14px">
+        <h3>Owner dashboard</h3>
+        <div style="color:var(--muted);font-size:13px">Owner sees only owned units, active activities, service requests, payments, and chat. No internal notes.</div>
+      </div>
+      <div class="owner-grid">
+        <div class="card stake-card">
+          <h3>My units</h3>
+          <div class="stack">
+            <div class="cta"><b>Unit 705 · Occupied by tenant</b><span>Lease expires 31 Dec 2026 · 1 open maintenance item</span></div>
+            <div class="cta"><b>Unit 1205 · Short-term</b><span>Guest checks out today · Ready for next arrival by 15:00</span></div>
+            <div class="cta"><b>Unit 904 · Vacant</b><span>Available for next occupancy</span></div>
+          </div>
+        </div>
+        <div class="card stake-card">
+          <h3>Request services</h3>
+          <div class="stack">
+            <div class="cta" onclick="demoAction('Maintenance booking flow opened')"><b>Maintenance visit</b><span>Book by calendar and pay if needed</span></div>
+            <div class="cta" onclick="demoAction('Deep cleaning booking opened')"><b>Deep cleaning</b><span>Schedule for owner or tenant benefit</span></div>
+            <div class="cta" onclick="demoAction('Complaint / inquiry form opened')"><b>Complaint / inquiry</b><span>Send directly through in-app chat or form</span></div>
+          </div>
+        </div>
+        <div class="card stake-card">
+          <h3>Payments & activity</h3>
+          <div class="stack">
+            <div class="cta"><b>Outstanding extra services</b><span>AED 420 pending</span></div>
+            <div class="cta"><b>Recent completed work</b><span>AC service for Unit 705 with photos</span></div>
+            <div class="cta"><b>Chat with FOH</b><span>Announcements and replies visible here</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stake-view" id="stake-resident">
+      <div class="card stake-card" style="margin-bottom:14px">
+        <h3>Tenant / resident dashboard</h3>
+        <div style="color:var(--muted);font-size:13px">Resident sees the unit profile, contract details, visitors, service booking, complaints, payment links, and chat.</div>
+      </div>
+      <div class="resident-grid">
+        <div class="card stake-card">
+          <h3>My unit</h3>
+          <div class="stack">
+            <div class="cta" onclick="demoAction('Tenant profile details opened')"><b>Unit 1502</b><span>Lease expiry: 31 Dec 2026 · Maid registered · Dog registered</span></div>
+            <div class="cta"><b>Document alerts</b><span>Maid ID expires in 14 days</span></div>
+          </div>
+        </div>
+        <div class="card stake-card">
+          <h3>Book services</h3>
+          <div class="calendar">
+            <div class="day">Mon<span class="cal-badge">Cleaning</span></div>
+            <div class="day">Tue</div>
+            <div class="day">Wed<span class="cal-badge">Maintenance</span></div>
+            <div class="day">Thu</div>
+            <div class="day">Fri<span class="cal-badge">Car wash</span></div>
+            <div class="day">Sat</div>
+            <div class="day">Sun</div>
+          </div>
+          <div class="cta" style="margin-top:10px" onclick="demoAction('Service confirmed. Payment link sent after confirmation')"><b>Flow</b><span>Book from calendar → receive confirmation → receive payment link</span></div>
+        </div>
+        <div class="card stake-card">
+          <h3>Visitors & chat</h3>
+          <div class="stack">
+            <div class="cta" onclick="demoAction('Visitor pre-registration opened')"><b>Pre-log visitor</b><span>Security will allow direct entry after ID check</span></div>
+            <div class="cta"><b>Standing instruction</b><span>Do not stop my cleaner / dog walker</span></div>
+            <div class="cta" onclick="demoAction('Concierge chat opened')"><b>Concierge chat</b><span>Announcements, updates, and service replies</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stake-view" id="stake-guest">
+      <div class="card stake-card" style="margin-bottom:14px">
+        <h3>Short-term guest view</h3>
+        <div style="color:var(--muted);font-size:13px">Guest receives secure booking link, completes pre-check-in, checks in, requests services, and receives upsells before departure.</div>
+      </div>
+      <div class="resident-grid">
+        <div class="card stake-card">
+          <h3>Arrival flow</h3>
+          <div class="stack">
+            <div class="cta" onclick="demoAction('Pre-check-in link sent to guest')"><b>Booking created</b><span>System sends secure pre-check-in link automatically</span></div>
+            <div class="cta"><b>Pre-check-in</b><span>Guest uploads passport, car details, and arrival info</span></div>
+            <div class="cta"><b>Check-in</b><span>FOH validates data, takes signature, issues access items, activates stay</span></div>
+          </div>
+        </div>
+        <div class="card stake-card">
+          <h3>During stay</h3>
+          <div class="stack">
+            <div class="cta" onclick="demoAction('Towel request created and routed to cleaning')"><b>Request more towels</b><span>Goes straight to FOH / cleaning route</span></div>
+            <div class="cta" onclick="demoAction('Service calendar opened. Confirmation and payment flow ready')"><b>Book cleaning or maintenance</b><span>Calendar booking with confirmation and payment link</span></div>
+            <div class="cta" onclick="demoAction('Third-party service routed to concierge')"><b>Book 3rd party service</b><span>Concierge coordinates with external vendor</span></div>
+          </div>
+        </div>
+        <div class="card stake-card">
+          <h3>Before departure</h3>
+          <div class="stack">
+            <div class="cta" onclick="demoAction('Checkout reminder preview opened')"><b>Checkout reminder</b><span>Sent automatically in app chat and email</span></div>
+            <div class="cta" onclick="demoAction('Upsell campaign panel opened')"><b>Upsell</b><span>Late checkout, airport transfer, luggage storage</span></div>
+            <div class="cta"><b>Payment links</b><span>Guest pays directly for accepted services</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stake-view" id="stake-agency">
+      <div class="card stake-card" style="margin-bottom:14px">
+        <h3>Agency view</h3>
+        <div style="color:var(--muted);font-size:13px">Agency sees only assigned inventory. Agency manages bookings. FOH manages operations.</div>
+      </div>
+      <div class="agency-grid">
+        <div class="card stake-card">
+          <h3>Assigned inventory</h3>
+          <div class="stack">
+            <div class="cta"><b>Unit 1205</b><span>Occupied · Checkout today</span></div>
+            <div class="cta"><b>Unit 1307</b><span>Upcoming booking added</span></div>
+            <div class="cta"><b>Unit 1410</b><span>Ready</span></div>
+          </div>
+        </div>
+        <div class="card stake-card">
+          <h3>Booking flow</h3>
+          <div class="stack">
+            <div class="cta" onclick="demoAction('Agency booking created and synced to FOH')"><b>Create booking</b><span>Booking appears instantly in FOH bookings section</span></div>
+            <div class="cta" onclick="demoAction('Guest onboarding automation started')"><b>Guest onboarding</b><span>Secure pre-check-in link sent automatically</span></div>
+            <div class="cta"><b>Charges & invoices</b><span>Late check-in, damage, services, month-end billing</span></div>
+          </div>
+        </div>
+        <div class="card stake-card">
+          <h3>Boundaries</h3>
+          <div class="stack">
+            <div class="cta"><b>Agency controls bookings</b><span>Inventory and guest data</span></div>
+            <div class="cta"><b>FOH controls operations</b><span>Check-in, cleaning, maintenance, readiness</span></div>
+            <div class="cta"><b>Shared visibility</b><span>Status, issues, and billing events</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stake-view" id="stake-security">
+      <div class="card stake-card" style="margin-bottom:14px">
+        <h3>Security / visitor management view</h3>
+        <div style="color:var(--muted);font-size:13px">Security logs all visitors. Some are pre-approved. Some wait for resident / guest approval. All stay attached to the unit history.</div>
+      </div>
+      <div class="agency-grid">
+        <div class="card stake-card">
+          <h3>Unannounced visitor</h3>
+          <div class="stack">
+            <div class="cta" onclick="demoAction('Visitor logged by security')"><b>Visitor arrives</b><span>Security logs ID and unit destination</span></div>
+            <div class="cta" onclick="demoAction('Approval request sent to resident / guest')"><b>Wait for approval</b><span>Resident / guest approval requested in app chat</span></div>
+            <div class="cta"><b>Release or deny</b><span>Decision stored in visitor log</span></div>
+          </div>
+        </div>
+        <div class="card stake-card">
+          <h3>Pre-logged visitor</h3>
+          <div class="stack">
+            <div class="cta"><b>Resident already added visitor</b><span>No approval required</span></div>
+            <div class="cta"><b>Special instruction</b><span>“Do not stop after ID check” supported</span></div>
+            <div class="cta"><b>Security action</b><span>Verify documents, log, allow entry</span></div>
+          </div>
+        </div>
+        <div class="card stake-card">
+          <h3>Connected modules</h3>
+          <div class="stack">
+            <div class="cta"><b>Unit profile</b><span>Visitor log sits under the unit</span></div>
+            <div class="cta"><b>Communication</b><span>Approval request sent via chat</span></div>
+            <div class="cta"><b>Complaints</b><span>Security-related complaints route here automatically</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer" id="drawer">
+    <div class="drawer-head">
+      <div class="drawer-top">
+        <div class="drawer-title">
+          <h3 id="drawerUnit">Unit 1205</h3>
+          <p id="drawerSubtitle">Marina Gate · Short-term occupancy · Managed by Arabian Estates</p>
+        </div>
+        <button class="close" onclick="closeDrawer()">Close</button>
+      </div>
+      <div class="drawer-tabs">
+        <button class="dtab active" data-dtab="overview">Overview</button>
+        <button class="dtab" data-dtab="activities">Activities</button>
+        <button class="dtab" data-dtab="payments">Payments</button>
+        <button class="dtab" data-dtab="visitors">Visitors</button>
+      </div>
+    </div>
+    <div class="drawer-body">
+      <div class="dview active" id="dview-overview">
+        <div class="head-grid">
+          <div class="head-card"><div class="k">Occupancy</div><div class="v" id="occtype">Short-term guest</div><span class="small-tag" id="occstatus">Occupied</span></div>
+          <div class="head-card"><div class="k">Status</div><div class="v" id="unitstatus">Checkout today 11:00</div><span class="small-tag">Back-to-back priority</span></div>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-card">
+            <h4>Owner / managing party</h4>
+            <div class="kv"><span class="k">Owner</span><strong id="ownerName">Ahmad Al Mansouri</strong></div>
+            <div class="kv"><span class="k">Managing party</span><strong id="managerName">Arabian Estates</strong></div>
+            <div class="kv"><span class="k">Owner phone</span><strong>+971 50 555 1205</strong></div>
+            <div class="kv"><span class="k">Owner email</span><strong>owner1205@example.com</strong></div>
+          </div>
+          <div class="detail-card">
+            <h4>Current occupant</h4>
+            <div class="kv"><span class="k">Name</span><strong id="occName">Emily Carter</strong></div>
+            <div class="kv"><span class="k">Phone</span><strong id="occPhone">+44 777 332 1205</strong></div>
+            <div class="kv"><span class="k">Email</span><strong id="occEmail">emily.carter@example.com</strong></div>
+            <div class="kv"><span class="k">Stay / contract</span><strong id="occExpiry">Checkout 11:00 today</strong></div>
+          </div>
+          <div class="detail-card">
+            <h4>Profile details</h4>
+            <div class="kv"><span class="k">Adults</span><strong>2</strong></div>
+            <div class="kv"><span class="k">Children</span><strong>1</strong></div>
+            <div class="kv"><span class="k">Car</span><strong>Yes · P-43892</strong></div>
+            <div class="kv"><span class="k">Pet</span><strong>No</strong></div>
+          </div>
+          <div class="detail-card">
+            <h4>Linked items</h4>
+            <div class="kv"><span class="k">Requests</span><strong id="reqCount">2 active</strong></div>
+            <div class="kv"><span class="k">Complaints</span><strong id="compCount">1 active</strong></div>
+            <div class="kv"><span class="k">Visitors</span><strong id="visCount">1 active</strong></div>
+            <div class="kv"><span class="k">Payments</span><strong id="payCount">AED 200 pending</strong></div>
+          </div>
+        </div>
+        <div class="action-bar">
+          <button class="mini-btn" onclick="demoAction('Chat opened for this unit')">Open chat</button>
+          <button class="mini-btn" onclick="demoAction('Payment link sent successfully')">Send payment link</button>
+          <button class="mini-btn" onclick="demoAction('Cleaning task created for this unit')">Create cleaning task</button>
+          <button class="mini-btn" onclick="demoAction('Maintenance task assigned')">Assign maintenance</button>
+        </div>
+      </div>
+
+      <div class="dview" id="dview-activities" style="display:none">
+        <div class="timeline" id="activityList"></div>
+      </div>
+
+      <div class="dview" id="dview-payments" style="display:none">
+        <div class="pay-grid">
+          <div class="detail-card">
+            <h4>Current charges</h4>
+            <div class="kv"><span class="k">Late checkout offer</span><strong>AED 200</strong></div>
+            <div class="kv"><span class="k">Extra towels</span><strong>AED 0</strong></div>
+            <div class="kv"><span class="k">Airport transfer</span><strong>AED 180</strong></div>
+            <div class="kv"><span class="k">Deposit</span><strong>AED 500 pre-auth</strong></div>
+          </div>
+          <div class="detail-card">
+            <h4>Available actions</h4>
+            <div class="cta"><b>Send payment link</b><span>Guest / resident / owner receives link in chat and email</span></div>
+            <div class="cta"><b>Promote upsell</b><span>Late checkout, luggage storage, transfer, extra cleaning</span></div>
+            <div class="cta"><b>Invoice party</b><span>Direct guest, owner, or agency depending flow</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dview" id="dview-visitors" style="display:none">
+        <div class="timeline">
+          <div class="event"><b>Visitor · John Smith</b><span>Logged by security · Waiting approval from guest · 09:42</span></div>
+          <div class="event"><b>Pre-registered cleaner entry</b><span>Resident instruction: do not stop after ID check · Yesterday 14:00</span></div>
+          <div class="event"><b>Family visitor</b><span>Pre-approved by resident · Logged and released · 3 days ago</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+
+function demoAction(message){
+  showToast(message, 'brand');
+}
+function showToast(message, style='brand'){
+  const t = document.getElementById('toast');
+  t.className = 'toast ' + style;
+  t.textContent = message;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+function sendReply(){
+  const box = document.getElementById('replyBox');
+  const text = box.value.trim() || 'Message sent to guest successfully';
+  showToast(text, 'brand');
+  box.value = '';
+}
+document.querySelectorAll('.calendar .day').forEach(day=>{
+  day.style.cursor='pointer';
+  day.addEventListener('click', ()=>{
+    const label = day.innerText.trim();
+    showToast('Calendar slot selected: ' + label, 'brand');
+  });
+});
+document.querySelectorAll('.chat-item').forEach(item=>{
+  item.addEventListener('click', ()=>{
+    document.querySelectorAll('.chat-item').forEach(i=>i.classList.remove('active'));
+    item.classList.add('active');
+    const name = item.querySelector('b').innerText;
+    showToast('Opened chat: ' + name, 'brand');
+  });
+});
+document.querySelectorAll('.btn.brand').forEach(btn=>{
+  if(btn.textContent.includes('New booking')){
+    btn.addEventListener('click', ()=>showToast('New booking form opened', 'brand'));
+  }
+});
+
+const unitData = [
+  {u:'1205', type:'short', status:'checkout', name:'Emily Carter', sub:'Guest', note:'Checkout 11:00', owner:'Ahmad Al Mansouri', manager:'Arabian Estates', requests:2, complaints:1, visitors:1, payment:'AED 200 pending'},
+  {u:'1502', type:'tenant', status:'occupied', name:'Sarah Johnson', sub:'Tenant', note:'Lease to 31 Dec 2026', owner:'Palm Asset Co.', manager:'Livaura', requests:1, complaints:0, visitors:0, payment:'AED 150 link sent'},
+  {u:'904', type:'short', status:'maintenance', name:'David Wong', sub:'Guest', note:'Noise complaint', owner:'Nadia Rahman', manager:'Livaura', requests:0, complaints:1, visitors:2, payment:'AED 0'},
+  {u:'705', type:'owners', status:'occupied', name:'Owner occupied', sub:'Owner', note:'Owner staying', owner:'Ahmad Al Mansouri', manager:'Self', requests:1, complaints:0, visitors:0, payment:'AED 420 pending'},
+  {u:'1410', type:'short', status:'ready', name:'—', sub:'Ready', note:'Next arrival 15:00', owner:'M. Al Ali', manager:'Arabian Estates', requests:0, complaints:0, visitors:0, payment:'AED 0'},
+  {u:'605', type:'tenant', status:'cleaning', name:'—', sub:'Turnover', note:'Post move-out', owner:'Blue Harbor', manager:'Livaura', requests:0, complaints:0, visitors:0, payment:'AED 0'},
+  {u:'802', type:'tenant', status:'occupied', name:'Rana Khaled', sub:'Tenant', note:'Visitor approval pending', owner:'Blue Harbor', manager:'Livaura', requests:0, complaints:0, visitors:1, payment:'AED 0'},
+  {u:'1307', type:'short', status:'occupied', name:'Anna Müller', sub:'Guest', note:'Pre-check-in done', owner:'Yousef Group', manager:'Arabian Estates', requests:1, complaints:0, visitors:0, payment:'AED 180'},
+  {u:'1804', type:'short', status:'occupied', name:'Carlos Diaz', sub:'Guest', note:'Cleaning booked 14:00', owner:'M. Al Ali', manager:'Livaura', requests:1, complaints:0, visitors:0, payment:'AED 90'},
+  {u:'1102', type:'owners', status:'vacant', name:'—', sub:'Owner', note:'Vacant', owner:'L. Haddad', manager:'Self', requests:0, complaints:0, visitors:0, payment:'AED 0'},
+];
+const statuses = ['occupied','checkout','cleaning','maintenance','ready','vacant'];
+const extra = [];
+for(let i=1;i<=158;i++){
+  const base = unitData[i % unitData.length];
+  const floor = String((i%18)+2).padStart(2,'0');
+  const unit = `${floor}${String((i%8)+1).padStart(2,'0')}`;
+  extra.push({
+    ...base,
+    u: unit,
+    name: base.status==='vacant' || base.status==='ready' || base.status==='cleaning' ? '—' : base.name,
+    note: base.status==='occupied' ? (base.type==='tenant' ? 'Occupied' : 'Stay active') : base.note
+  });
+}
+const allUnits = [...unitData, ...extra].slice(0,168);
+
+let currentFilter = 'all';
+let currentStatus = null;
+
+function modeClass(t){ return t==='short' ? 'short' : t==='tenant' ? 'tenant' : 'owner'; }
+function modeLabel(t){ return t==='short' ? 'Short' : t==='tenant' ? 'Tenant' : 'Owner'; }
+function statusLabel(s){
+  return {
+    occupied:['Occupied','status-blue'],
+    checkout:['Checkout','status-orange'],
+    cleaning:['Cleaning','status-amber'],
+    maintenance:['Maintenance','status-red'],
+    ready:['Ready','status-green'],
+    vacant:['Vacant','status-gray']
+  }[s];
+}
+function cardClass(s){ return s; }
+function flagColor(s){
+  return {
+    occupied:'var(--blue)',
+    checkout:'var(--orange)',
+    cleaning:'var(--amber)',
+    maintenance:'var(--red)',
+    ready:'var(--green)',
+    vacant:'#b4b4b4'
+  }[s];
+}
+
+function renderUnits(){
+  const grid = document.getElementById('unitGrid');
+  grid.innerHTML = '';
+  let units = allUnits.filter(u=>{
+    const typeMatch = currentFilter==='all' ? true :
+      currentFilter==='owners' ? u.type==='owners' :
+      currentFilter==='tenants' ? u.type==='tenant' :
+      currentFilter==='short' ? u.type==='short' : true;
+    const statusMatch = currentStatus ? u.status===currentStatus : true;
+    return typeMatch && statusMatch;
+  });
+
+  units.forEach(u=>{
+    const [slab, cls] = statusLabel(u.status);
+    const card = document.createElement('div');
+    card.className = `unit ${cardClass(u.status)}`;
+    card.innerHTML = `
+      <div class="flag" style="background:${flagColor(u.status)}"></div>
+      <div class="num">${u.u}</div>
+      <span class="mode ${modeClass(u.type)}">${modeLabel(u.type)}</span>
+      <div class="occ">${u.name}</div>
+      <div class="sub">${u.sub}</div>
+      <div class="st ${cls}">${slab}</div>
+    `;
+    card.onclick = ()=>openUnit(u);
+    grid.appendChild(card);
+  });
+}
+renderUnits();
+
+document.querySelectorAll('.pill[data-filter]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.pill[data-filter]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderUnits();
+  });
+});
+document.querySelectorAll('.pill[data-status]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    if(btn.classList.contains('active')){
+      btn.classList.remove('active');
+      currentStatus = null;
+    } else {
+      document.querySelectorAll('.pill[data-status]').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      currentStatus = btn.dataset.status;
+    }
+    renderUnits();
+  });
+});
+
+document.querySelectorAll('.nav-item[data-section]').forEach(item=>{
+  item.addEventListener('click', ()=>{
+    document.querySelectorAll('.nav-item[data-section]').forEach(i=>i.classList.remove('active'));
+    item.classList.add('active');
+    document.querySelectorAll('.section-view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('section-'+item.dataset.section).classList.add('active');
+  });
+});
+
+document.querySelectorAll('.stake-tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.stake-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.stake-view').forEach(v=>v.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('stake-'+tab.dataset.stake).classList.add('active');
+    closeDrawer();
+  });
+});
+
+const activityTemplates = {
+  short: [
+    ['Pre-check-in completed','Guest uploaded passport, car plate, and arrival details.'],
+    ['Late checkout upsell sent','Offer delivered in app chat and email at 09:00.'],
+    ['Housekeeping scheduled','Auto-trigger will fire immediately after checkout.'],
+    ['Visitor pending approval','Security logged ID and requested approval from guest.']
+  ],
+  tenant: [
+    ['Deep cleaning booked','Calendar slot confirmed for tomorrow at 10:00.'],
+    ['Payment link sent','Resident received link in app chat and email.'],
+    ['Document expiry warning','Maid ID expires in 14 days.'],
+    ['Visitor instruction on file','Security can allow cleaner after ID check.']
+  ],
+  owners: [
+    ['Owner staying in unit','Profile visible under owner dashboard.'],
+    ['Maintenance requested','Pre-tenancy work request in queue.'],
+    ['Pending service payment','AC servicing charge ready to send.'],
+    ['Announcement sent','Owner received building notice in chat.']
+  ]
+};
+
+function openUnit(u){
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawerUnit').innerText = 'Unit ' + u.u;
+  document.getElementById('drawerSubtitle').innerText =
+    `Marina Gate · ${modeLabel(u.type)} occupancy · Managed by ${u.manager}`;
+  document.getElementById('occtype').innerText =
+    u.type==='short' ? 'Short-term guest' : u.type==='tenant' ? 'Long-term tenant' : 'Owner occupied / owner linked';
+  document.getElementById('occstatus').innerText =
+    u.status==='occupied' ? 'Occupied' : u.status==='checkout' ? 'Checkout in progress' : u.status.charAt(0).toUpperCase()+u.status.slice(1);
+  document.getElementById('unitstatus').innerText = u.note;
+  document.getElementById('ownerName').innerText = u.owner;
+  document.getElementById('managerName').innerText = u.manager;
+  document.getElementById('occName').innerText = u.name === '—' ? 'No active occupant' : u.name;
+  document.getElementById('occPhone').innerText = u.type==='tenant' ? '+971 52 000 '+u.u : '+44 7700 '+u.u;
+  document.getElementById('occEmail').innerText = (u.name === '—' ? '—' : u.name.toLowerCase().replace(/ /g,'.') + '@example.com');
+  document.getElementById('occExpiry').innerText =
+    u.type==='tenant' ? 'Lease expires 31 Dec 2026' :
+    u.type==='short' ? (u.status==='checkout' ? 'Checkout 11:00 today' : 'Checkout tomorrow 11:00') :
+    'Owner stay active';
+  document.getElementById('reqCount').innerText = `${u.requests} active`;
+  document.getElementById('compCount').innerText = `${u.complaints} active`;
+  document.getElementById('visCount').innerText = `${u.visitors} active`;
+  document.getElementById('payCount').innerText = u.payment;
+
+  const list = document.getElementById('activityList');
+  list.innerHTML = '';
+  (activityTemplates[u.type] || []).forEach(([title, meta])=>{
+    const div = document.createElement('div');
+    div.className = 'event';
+    div.innerHTML = `<b>${title}</b><span>${meta}</span>`;
+    list.appendChild(div);
+  });
+
+  document.querySelectorAll('.dtab').forEach((t,i)=>{
+    t.classList.toggle('active', i===0);
+  });
+  document.querySelectorAll('.dview').forEach((v,i)=>{
+    v.style.display = i===0 ? 'block' : 'none';
+    v.classList.toggle('active', i===0);
+  });
+}
+function closeDrawer(){ document.getElementById('drawer').classList.remove('open'); }
+
+document.querySelectorAll('.dtab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.dview').forEach(v=>{v.style.display='none'; v.classList.remove('active');});
+    const el = document.getElementById('dview-'+tab.dataset.dtab);
+    el.style.display='block';
+    el.classList.add('active');
+  });
+});
+</script>
+<div class="toast" id="toast"></div>
+</body>
+</html>
